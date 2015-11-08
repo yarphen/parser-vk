@@ -3,7 +3,8 @@ package com.sheremet.utils;
 import java.util.LinkedList;
 
 public class ConverterFromCSV {
-	public static String[] createLine(String raw, char separator, char strDelimiter) {
+
+	public static String[] parseLine(String raw, char separator, char strDelimiter) {
 		String [] arr = customSplit(raw,strDelimiter+"");
 		LinkedList<String> list = new LinkedList<>();
 		StringBuilder sb = new StringBuilder();
@@ -42,6 +43,7 @@ public class ConverterFromCSV {
 		}
 		return arr3;
 	}
+
 	private static String[] customSplit(String str, String splitter) {
 		if (!str.contains(splitter))return new String[]{str};
 		String temp = str;
@@ -60,6 +62,7 @@ public class ConverterFromCSV {
 		}
 		return arr;
 	}
+
 	private static String[] my2split(String temp, String splitter) throws IllegalArgumentException {
 		if (!temp.contains(splitter))throw new  IllegalArgumentException();
 		else{
@@ -69,12 +72,5 @@ public class ConverterFromCSV {
 			return arr;
 		}
 			
-	}
-	public static void main(String[] args) {
-				String s = ";;;;;;";
-//		String s = "\"photo-13279251_151350637\";\"http://cs9785.vk.me/u17510826/103661830/x_26c4c194.jpg\";\"Кофта с воротником<br/>Цена: 499 грн.<br/>размеры: S, M, L, XL<br/>Материал: Хлопок<br/>Сезон: весна, осень<br/>Унисекс<br/>AY10001<br/>Серый\";\"Кофта с воротником\";499;\"AY10001\";;\"Серый\";\"<h1>Кофта с воротником</h1><br/><b>размеры:</b> S, M, L, XL<br/><b>Материал:</b> Хлопок<br/><b>Сезон:</b> весна, осень<br/>Унисекс<br/>\";\"\"";
-		String[] h = createLine(s, ';', '"');
-		//		String [] h = customSplit(s, ";");
-		System.out.println();
 	}
 }

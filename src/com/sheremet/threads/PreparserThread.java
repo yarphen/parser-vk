@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import com.sheremet.utils.FragmentingTools;
 import com.sheremet.utils.JTextAreaOutputStream;
@@ -47,6 +48,7 @@ public class PreparserThread extends Thread{
 			logWriter = new PrintWriter(fileWriter);
 		} catch (IOException e1) {e1.printStackTrace();}
 		dir.mkdirs();
+		logWriter.write(new Date(System.currentTimeMillis())+"\n");
 		for (albumNumber=0; albumNumber<validalbums.size(); albumNumber++){
 			albumLink =  validalbums.get(albumNumber);
 			custom.setOpen(true);
@@ -60,7 +62,7 @@ public class PreparserThread extends Thread{
 			}
 			photoLink = firstLink;
 			try {
-				writer = new PrintWriter("albums/"+albumLink+"-raw.csv", "Windows-1251");
+				writer = new PrintWriter("albums/"+albumLink+"-raw.csv", "UTF-8");
 			} catch (FileNotFoundException | UnsupportedEncodingException e) {
 				custom.setOpen(true);
 				System.err.println("Writing to album "+(albumNumber+1)+ " of "+validalbums.size()+": failed!");
@@ -72,14 +74,19 @@ public class PreparserThread extends Thread{
 				String html = Tools.getHTML(photoLink, "Album "+(albumNumber+1)+ " of "+validalbums.size()+", photo "+photoNumber);
 				if (html == null){
 					custom.setOpen(true);
-					System.err.println("Error: album "+(albumNumber+1)+ " of "+validalbums.size()+" failed on photo "+photoNumber+"!");
+					System.err.println("Error loading html: album "+(albumNumber+1)+ " of "+validalbums.size()+" failed on photo "+photoNumber+"!");
 					custom.setOpen(false);
 					break;
 				}
 				writer.write(Tools.getCSVLine(html, photoLink, logWriter)+"\r\n");
 				photoLink = FragmentingTools.findNewLink(html);
 				photoNumber++;
-			}while(!photoLink.equals(firstLink));
+			}while(photoLink!=null&&!photoLink.equals(firstLink));
+			if (photoLink == null){
+				custom.setOpen(true);
+				System.err.println("Error finding link: album "+(albumNumber+1)+ " of "+validalbums.size()+" failed on photo "+photoNumber+"!");
+				custom.setOpen(false);
+			}
 			writer.close();
 			custom.setOpen(true);
 			System.out.println("Successfully written to /albums/"+albumLink+"-raw.csv");
@@ -91,13 +98,7 @@ public class PreparserThread extends Thread{
 		System.out.println("Program finished.");
 		custom.setOpen(false);
 		if (finish!=null)
-			finish.actionPerformed(null);;
-	}
-	public String getStatus(){
-		return null;
-	}
-	public static void main(String[] args) {
-		new PreparserThread(new String[]{"https://vk.com/album-13279251_150217032"}, null, null).run();
+			finish.actionPerformed(null);
 	}
 	public PrintWriter getWriter() {
 		return writer;

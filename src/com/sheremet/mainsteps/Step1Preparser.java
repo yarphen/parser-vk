@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.LinkedList;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,8 +23,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import com.sheremet.threads.PreparserThread;
+import com.sheremet.utils.FragmentingTools;
 import com.sheremet.utils.JTextAreaOutputStream;
 
+@SuppressWarnings("deprecation")
 public class Step1Preparser extends JFrame{
 	/**
 	 * 
@@ -43,9 +46,9 @@ public class Step1Preparser extends JFrame{
 	private JScrollPane inputScroll = new JScrollPane(input);
 	private JTextArea albumLog = new JTextArea();
 	private JScrollPane albumLogScroll = new JScrollPane(albumLog );
-	private PrintStream albmOut = new PrintStream(new JTextAreaOutputStream(albumLog, null));
+	private JTextAreaOutputStream albumOS = new JTextAreaOutputStream(albumLog, null); 
 	private JScrollPane logScroll = new JScrollPane(log);
-	private JTextAreaOutputStream custom = new JTextAreaOutputStream(log, albmOut);
+	private JTextAreaOutputStream custom = new JTextAreaOutputStream(log, albumOS);
 	private PrintStream txtOut = new PrintStream(custom);
 
 	public Step1Preparser() {
@@ -59,6 +62,7 @@ public class Step1Preparser extends JFrame{
 		addingListeners();
 
 		pack();//for resizing
+		setVisible(true);
 
 	}
 	private void settingSizes() {
@@ -94,6 +98,7 @@ public class Step1Preparser extends JFrame{
 
 	}
 	private void generalSettings() {
+		setTitle("Step1");
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowListener() {
@@ -104,15 +109,16 @@ public class Step1Preparser extends JFrame{
 			@Override public void windowClosing(WindowEvent arg0) {
 				if (preparserThread!=null&&preparserThread.isAlive())
 					javax.swing.JOptionPane.showMessageDialog(null, "You can't until you stop the process!!");
-				else
-					System.exit(0);
+				else{
+					Step0Menu.main(null);
+					dispose();
+				}
 			}
 			@Override public void windowClosed(WindowEvent arg0) {}
 			@Override public void windowActivated(WindowEvent arg0) {}
 		});
 		System.setOut(txtOut);
 		System.setErr(txtOut);
-		setVisible(true);
 		panel.setLayout(null);
 	}
 	private void additionalSettings() {
@@ -129,6 +135,9 @@ public class Step1Preparser extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
+					File imgdir = new File("");
+					if (!imgdir.exists())
+						imgdir.mkdirs();
 					Desktop.getDesktop().open(new File("albums"));
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -138,14 +147,8 @@ public class Step1Preparser extends JFrame{
 		nsBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (new File("Step2.jar").exists()){
-					try {
-						Runtime.getRuntime().exec("java -jar Step2.jar");
-						System.exit(0);
-					} catch (IOException e) {}
-				}else{
-					JOptionPane.showMessageDialog(null, "Next step module not found!");
-				}
+				Step2PicturesDownloader.main(null);
+				dispose();
 			}
 		});
 		input.addFocusListener(new FocusListener() {
@@ -202,6 +205,68 @@ public class Step1Preparser extends JFrame{
 							}
 
 						},custom);
+						Thread.UncaughtExceptionHandler h = new Thread.UncaughtExceptionHandler() {
+							public void uncaughtException(Thread th, Throwable ex) {
+								if (!ex.toString().equals("java.lang.ThreadDeath"))
+									new Thread(new Runnable() {
+										public void run() {
+											custom.setOpen(false);
+											System.err.println("Uncaught exception: " + ex);
+											PrintWriter pw = preparserThread.getWriter();
+											if (pw!=null)
+												synchronized (pw) {
+													pw.close();
+												}
+											pw = preparserThread.getLogWriter();
+											if (pw!=null)
+												synchronized (pw) {
+													pw.close();
+												}
+											preparserThread.stop();
+											System.out.println("Thread stopped!");
+											String [] args = null;
+											try{
+												String[] inputArray = input.getText().split("\n");
+												String[] logArray = albumLog.getText().split("\n");
+												String lastLine = logArray[logArray.length-1];
+												lastLine = FragmentingTools.findBetween(lastLine, "album-", " ");
+												LinkedList<String> list = new LinkedList<>();
+												boolean skipping = true;
+												for (String s:inputArray){
+													if (s.contains(lastLine))
+														skipping = false;
+													if (!skipping)
+														list.add(s);
+												}
+												args = new String [list.size()];
+												int counter=0;
+												for(String s:list){
+													args[counter]=s;
+													counter++;
+												}
+												preparserThread = new PreparserThread(args, new ActionListener() {
+													@Override
+													public void actionPerformed(ActionEvent arg0) {
+														preparserThread = null;
+														input.setEnabled(true);
+														prBtn.setEnabled(false);
+														nsBtn.setEnabled(true);
+														started = false;
+														sBtn.setText("Start");
+													}
+
+												},custom);
+												System.out.println("Restarting thread...");
+												preparserThread.start();
+
+											}catch(Exception e){
+												System.out.println("Cannot restart!");
+											}
+										}
+									}).start();
+							}
+						};
+						preparserThread.setUncaughtExceptionHandler(h);
 						preparserThread.start();
 						input.setEnabled(false);
 						prBtn.setEnabled(true);
@@ -222,7 +287,7 @@ public class Step1Preparser extends JFrame{
 							synchronized (pw) {
 								pw.close();
 							}
-						pw = preparserThread.getLogWriter();
+						 pw = preparserThread.getLogWriter();
 						if (pw!=null)
 							synchronized (pw) {
 								pw.close();
@@ -240,7 +305,6 @@ public class Step1Preparser extends JFrame{
 		});
 	}
 	public static void main(String[] args)  {
-
 		new Step1Preparser();
 	}
 }

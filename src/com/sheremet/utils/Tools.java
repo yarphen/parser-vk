@@ -2,6 +2,8 @@ package com.sheremet.utils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.List;
 
 public class Tools {
 
@@ -45,11 +47,44 @@ public class Tools {
 		arr[1] = FragmentingTools.findImageLink(html);
 		ParserTool.parse(arr, descr);
 		TesterTool.test(arr);
-		String line = ConverterToCSV.parseLine(arr, ';', '"');
+		String line = ConverterToCSV.unparseLine(arr, ';', '"');
 		if (arr[9]!=null&&(arr[9].contains("Missing name")||arr[9].contains("Missing price")||arr[9].contains("Missing ID")||arr[9].contains("Image link error"))){
-			logWriter.println(line);
+			logWriter.write(line+"\n");
 		}
 		return line;
+	}
+
+	public static String listWithSeparators(Iterable<String> arr, char separator){
+		StringBuilder sb = new StringBuilder();
+		for(String s:arr){
+			sb.append(s);
+			sb.append(separator);
+		}
+		if (sb.length()>0)
+			sb.deleteCharAt(sb.length()-1);
+		return sb.toString();
+	}
+
+	public static String maxRepeats(List<String[]> list2, int i) {
+		HashMap<String, Integer> map = new HashMap<>();
+		String maxStr=null;
+		int maxCount=0;
+		for(String[]arr:list2){
+			if (i<arr.length&&i>=0){
+				String s = arr[i];
+				int count=0;
+				if (map.containsKey(s))
+					count = map.get(s);
+				count++;
+				if (count>maxCount){
+					maxCount=count;
+					maxStr=s;
+				}
+				map.put(s, count);
+			}
+		}
+		return maxStr;
+	
 	}
 
 }

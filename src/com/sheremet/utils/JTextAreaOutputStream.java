@@ -2,19 +2,25 @@ package com.sheremet.utils;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 
 import javax.swing.JTextArea;
 
 public class JTextAreaOutputStream extends OutputStream {
 	private JTextArea textArea;
-	private PrintStream another;
+	private JTextAreaOutputStream another;
 	private boolean open = false;
-	public JTextAreaOutputStream(JTextArea textArea, PrintStream albmOut) {
+	public JTextAreaOutputStream(JTextArea textArea, JTextAreaOutputStream albmOut) {
 		this.textArea = textArea;
 		another = albmOut;
 	}
-
+	@Override
+	public void write(byte[] arg0) throws IOException {
+		if (open&&another!=null)another.write(arg0);
+		if (textArea!=null){
+			textArea.append(new String(arg0));
+			textArea.setCaretPosition(textArea.getDocument().getLength());
+		}
+	}
 	@Override
 	public void write(int b) throws IOException {
 		if (open&&another!=null)another.write(b);
