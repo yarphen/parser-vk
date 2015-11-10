@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
@@ -33,17 +34,17 @@ public class SizeMatcherThread extends Thread{
 	public void run(){
 		File csvdir = new File("size");
 		try {
-			ps=new PrintStream(new File("size-log.csv"));
+			ps=new PrintStream(new File("size-log.csv"), "utf-8");
 			System.out.println("merging log file created!");
-		} catch (FileNotFoundException e1) {
+		} catch (FileNotFoundException | UnsupportedEncodingException e1) {
 			e1.printStackTrace();
 		}
 		if (!csvdir.exists())csvdir.mkdirs();
 		for (File f:files){
 			try {
-				curFilePS = new PrintStream(new File("size/"+f.getName().split("-merge", 2)[0]+"-size.csv"));
+				curFilePS = new PrintStream(new File("size/"+f.getName().split("-merge", 2)[0]+"-size.csv"), "utf-8");
 				System.out.println("file "+f.getName()+" opened!");
-			} catch (FileNotFoundException e1) {
+			} catch (FileNotFoundException | UnsupportedEncodingException e1) {
 				System.out.println("cannot open size/"+f.getName()+"!");
 			}
 			try {

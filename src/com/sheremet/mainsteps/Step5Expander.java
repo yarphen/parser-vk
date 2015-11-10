@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import javax.swing.JButton;
@@ -198,18 +199,45 @@ public class Step5Expander extends JFrame{
 		panel.setLayout(null);
 	}
 	private void refresh() {
+		HashMap<String, String[]> filemap = new HashMap<String, String[]>();
+		
 		File csvdir = new File("merge");
 		File [] files = csvdir.listFiles(new FileFilter() {
 
 			@Override
 			public boolean accept(File arg0) {
-				return arg0.getName().endsWith(".csv")&&!arg0.isDirectory();
+				return arg0.getName().endsWith("-merge.csv")&&!arg0.isDirectory();
 			}
 		});
 		input.setText("");
 		if (files!=null)
-			for (File f: files)
-				input.append(f.getAbsolutePath()+"\n");
+			for (File f: files){
+				String key = f.getName().split("-", 3)[1];
+				if (!filemap.containsKey(key))
+					filemap.put(key, new String[2]);
+				filemap.get(key)[0]=f.getAbsolutePath();
+			}
+		csvdir = new File("size");
+		files = csvdir.listFiles(new FileFilter() {
+
+			@Override
+			public boolean accept(File arg0) {
+				return arg0.getName().endsWith("-size.csv")&&!arg0.isDirectory();
+			}
+		});
+		if (files!=null)
+			for (File f: files){
+				String key = f.getName().split("-", 3)[1];
+				if (!filemap.containsKey(key))
+					filemap.put(key, new String[2]);
+				filemap.get(key)[1]=f.getAbsolutePath();
+			}
+		for (String key: filemap.keySet()){
+			String [] arr = filemap.get(key);
+			if (arr[0]!=null&&arr[1]!=null){
+				input.append(arr[0]+"|"+arr[1]+"\n");
+			}
+		}
 		if (input.getText().isEmpty())
 			input.setText("No files found..");
 	}
