@@ -66,18 +66,18 @@ public class ExpanderThread extends Thread{
 		arr1 = createRow(article, "", name, description, "", "", 2, 1, "");
 		list.add(arr1);
 		return list;
-		
+
 	}
 	private String asImagesListString(HashMap<String, String> pictureColourMap) {
 		StringBuilder sb = new StringBuilder();
 		boolean first = true;
 		for(String temp:pictureColourMap.keySet())
 			if (!first)
-			sb.append("|"+pictureColourMap.get(temp));
-		else{
-			sb.append(pictureColourMap.get(temp));
-			first=false;
-		}
+				sb.append("|"+pictureColourMap.get(temp));
+			else{
+				sb.append(pictureColourMap.get(temp));
+				first=false;
+			}
 		return sb.toString();
 	}
 	private String asSizeMapString(List<String[]> tempList) {
@@ -116,7 +116,9 @@ public class ExpanderThread extends Thread{
 			HashMap<String, HashMap<String,String[]>> mergeMap = readMerges(mergeFiles[i]);
 			writeToFile(albName, idSizeColourMap, mergeMap);
 		}
-		onFinish.actionPerformed(null);
+		System.out.println("Program finished.");
+		if (onFinish!=null)
+			onFinish.actionPerformed(null);
 	}
 	private void writeToFile(String albName,
 			HashMap<String, HashMap<String, List<String>>> idSizeColourMap,
@@ -167,6 +169,7 @@ public class ExpanderThread extends Thread{
 			}
 			map.get(row[0]).put(row[1], row);
 		}
+		sc.close();
 		return map;
 	}
 	private HashMap<String, HashMap<String, List<String>>> readSizes(File file) {
