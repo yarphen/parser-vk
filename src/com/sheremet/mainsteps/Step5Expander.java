@@ -194,17 +194,15 @@ public class Step5Expander extends JFrame{
 		panel.setLayout(null);
 	}
 	private void refresh() {
+		input.setText("");
 		HashMap<String, String[]> filemap = new HashMap<String, String[]>();
-		
 		File csvdir = new File("merge");
 		File [] files = csvdir.listFiles(new FileFilter() {
-
 			@Override
 			public boolean accept(File arg0) {
 				return arg0.getName().endsWith("-merge.csv")&&!arg0.isDirectory();
 			}
 		});
-		input.setText("");
 		if (files!=null)
 			for (File f: files){
 				String key = f.getName().split("-", 3)[1];
