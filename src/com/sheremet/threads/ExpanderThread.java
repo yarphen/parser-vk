@@ -116,6 +116,7 @@ public class ExpanderThread extends Thread{
 			HashMap<String, HashMap<String,String[]>> mergeMap = readMerges(mergeFiles[i]);
 			writeToFile(albName, idSizeColourMap, mergeMap);
 		}
+		onFinish.actionPerformed(null);
 	}
 	private void writeToFile(String albName,
 			HashMap<String, HashMap<String, List<String>>> idSizeColourMap,
