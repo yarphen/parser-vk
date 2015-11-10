@@ -86,10 +86,10 @@ public class Step4SizeMatcher extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					File imgdir = new File("albums");
-					if (!imgdir.exists())
-						imgdir.mkdirs();
-					Desktop.getDesktop().open(imgdir);
+					File szdir = new File("size");
+					if (!szdir.exists())
+						szdir.mkdirs();
+					Desktop.getDesktop().open(szdir);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}	

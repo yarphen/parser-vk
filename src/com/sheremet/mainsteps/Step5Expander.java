@@ -83,7 +83,7 @@ public class Step5Expander extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					File imgdir = new File("albums");
+					File imgdir = new File("expand");
 					if (!imgdir.exists())
 						imgdir.mkdirs();
 					Desktop.getDesktop().open(imgdir);
@@ -133,7 +133,7 @@ public class Step5Expander extends JFrame{
 							JOptionPane.YES_NO_OPTION, 
 							JOptionPane.QUESTION_MESSAGE, 
 							null, null, null)==JOptionPane.YES_OPTION){
-						PrintStream pw = expanderThread.getPS();
+						PrintStream pw = expanderThread.getCurFilePS();
 						if (pw!=null)
 							synchronized (pw) {
 								pw.close();
@@ -142,11 +142,6 @@ public class Step5Expander extends JFrame{
 						if (sc!=null)
 							synchronized (sc) {
 								sc.close();
-							}
-						pw = expanderThread.getCurFilePS();
-						if (pw!=null)
-							synchronized (pw) {
-								pw.close();
 							}
 						expanderThread.stop();
 						expanderThread = null;

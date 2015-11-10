@@ -86,10 +86,10 @@ public class Step3Merger extends JFrame{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					File imgdir = new File("albums");
-					if (!imgdir.exists())
-						imgdir.mkdirs();
-					Desktop.getDesktop().open(imgdir);
+					File mrgdir = new File("merge");
+					if (!mrgdir.exists())
+						mrgdir.mkdirs();
+					Desktop.getDesktop().open(mrgdir);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}	

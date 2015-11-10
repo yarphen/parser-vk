@@ -192,17 +192,11 @@ public class ExpanderThread extends Thread{
 		sc.close();
 		return map;
 	}
-	public PrintStream getPS() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 	public Scanner getScanner() {
-		// TODO Auto-generated method stub
 		return sc;
 	}
 	public PrintStream getCurFilePS() {
-		
-		return null;
+		return curFilePS;
 	}
 
 }
